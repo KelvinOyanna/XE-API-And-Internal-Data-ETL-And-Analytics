@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime
 from dotenv import dotenv_values
+from util import check_last_updated
 dotenv_values()
 
 # Get API credentials from environment variable file withing the project directory
@@ -29,15 +30,29 @@ def get_exchange_rates(account_id, api_key):
         try: # A try-except block to handle error due to directory not available
             if os.path.exists('./raw/exchange_rates_data.json'):
                 with open('raw/exchange_rates_data.json', 'r+') as xrates_file:
-                    rates_data = json.load(xrates_file)
-                    rates_data.update(response_data)
-                    #print(rates_data)
-                    # Write the updated data to external json file
-                    json.dump(rates_data, xrates_file, indent= 2)
-                    print('exchange rate data successfully updated')
+                    records = json.load(xrates_file)
+                    if isinstance(records, dict):
+                        updated_records = list(records)
+                    else:
+                        updated_records = records
+                    if check_last_updated(updated_records, response_data):
+                        updated_records.append(response_data)
+                        xrates_file.seek(0)
+                        xrates_file.write('[ \n')
+                        for index, item in enumerate(updated_records):
+                            if index != (len(updated_records) -1):
+                                json.dump(item, xrates_file)
+                                xrates_file.write(',\n')
+                            else:
+                                json.dump(item, xrates_file)
+                                xrates_file.write('\n')
+                        xrates_file.write(']')
+                        print('exchange rate data successfully updated')
+                    else:
+                        pass
             else:
                 with open('raw/exchange_rates_data.json', 'w') as xrates_file:
-                    json.dump(response_data, xrates_file, indent= 2)
+                    json.dump(response_data, xrates_file)
                     print('exchange rate data successfully written to a file')
         except FileExistsError:
             print('Directory does not exist')
@@ -52,7 +67,6 @@ def transform_data():
     rates_data = get_exchange_rates(account_id, api_key)
     pass
 
-# if os.path.exists('./raw/exchange_rates_data.json'):
-#     print('Holla')
-# else:
-#     print('Forget')
+# update = "2023-01-27T00:00:00Z"
+# last_update = datetime.strptime(update, '%Y-%m-%dT%H:%M:%SZ').date()
+# print(last_update)
