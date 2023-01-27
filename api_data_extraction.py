@@ -60,13 +60,15 @@ def get_exchange_rates(account_id, api_key):
         print(f'Unable to get data from API. Error: {err}')
 
 
-get_exchange_rates(account_id, api_key)
+#get_exchange_rates(account_id, api_key)
 
 def transform_data():
-    #with
-    rates_data = get_exchange_rates(account_id, api_key)
-    pass
+    with open('raw/exchange_rates_data.json', 'r+') as xrates_file:
+        records = json.load(xrates_file)
+        if isinstance(records, dict):
+            records = list(records)
+        rates_data = pd.DataFrame(records)[['timestamp', 'from', 'to', 'amount']]
+        rates_data['currency_to'] = rates_data['to'].apply(lambda x: [item['quotecurrency'] for item in x])
+        print(rates_data.head())
 
-# update = "2023-01-27T00:00:00Z"
-# last_update = datetime.strptime(update, '%Y-%m-%dT%H:%M:%SZ').date()
-# print(last_update)
+transform_data()
