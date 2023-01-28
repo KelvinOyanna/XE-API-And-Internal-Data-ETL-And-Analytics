@@ -1,0 +1,101 @@
+import pandas as pd
+import requests
+import json
+import os
+from datetime import datetime
+from dotenv import dotenv_values
+from util import check_last_updated
+dotenv_values()
+
+# Get API credentials from environment variable file withing the project directory
+config = dict(dotenv_values('.env'))
+account_id = config.get('ACCOUNT_ID')
+api_key = config.get('API_KEY')
+
+def get_exchange_rates(account_id, api_key):
+    '''
+    This function sends request and retrieve exchnage rate data for all the specified countries from XE REST API and
+    write the data to an external JSON file. 
+    Parameter: Takes in two parameters - XE account ID and API key
+    Return value: None. Does not return a value
+    Return type: None
+    '''
+    #to_cur = ["NGN", "GHS", "KSH", "USH", "MAD", "CFA", "EGP"]
+    url = 'https://xecdapi.xe.com/v1/convert_from.json/?from=USD&to=NGN,GHS,KSH,USH,MAD,CFA,EGP&amount=1'
+    
+    try: # A try-except block to handle error authenticating or retrieving data from the API
+        response = requests.get(url=url, auth= (account_id, api_key))
+        response_data = response.json()
+        try: # A try-except block to handle error due to reading or writing to the data directory.
+            if os.path.exists('./raw/exchange_rates_data.json'): # Check if the raw exchange rate data exists
+                with open('raw/exchange_rates_data.json', 'r+') as xrates_file:
+                    records = json.load(xrates_file) # Read data from external JSON file
+                    if isinstance(records, dict):
+                        updated_records = list(records)
+                    else:
+                        updated_records = records
+                    # The check_last_updated function is first used to check if data for the current run date already exist.
+                    # The update and write operation is skipped if this is tre
+                    if check_last_updated(updated_records, response_data):
+                        updated_records.append(response_data)
+                        xrates_file.seek(0)
+                        xrates_file.write('[ \n')
+                        for index, item in enumerate(updated_records): 
+                            if index != (len(updated_records) -1): # checks if the current iteration is not the last iteration
+                                json.dump(item, xrates_file) # Write updated data to an external JSON file
+                                xrates_file.write(',\n')
+                            else: # If the current iteration is the last iteration then a comma symbol is not add to end of line
+                                json.dump(item, xrates_file)
+                                xrates_file.write('\n')
+                        xrates_file.write(']')
+                        print('exchange rate data successfully updated')
+                    # This block skips writing data to the external JSON file
+                    else:
+                        pass
+            else:
+                with open('raw/exchange_rates_data.json', 'w') as xrates_file:
+                    json.dump(response_data, xrates_file) # Write pulled data to an external JSON file
+                    print('exchange rate data successfully written to a file')
+        except FileExistsError:
+            print('Directory does not exist')
+    except requests.exceptions.RequestException as err:
+        print(f'Unable to get data from API. Error: {err}')
+
+def transform_data():
+    '''
+    This function reads exchanges rates data from an external JSON file in the raw directory,
+    perform some transformations on the data to put in a structured and desired format and 
+    write the final output into an external csv file.
+    Parameters: Takes no parameter
+    Return value: Does not return a value
+    Return type: None
+    '''
+    with open('raw/exchange_rates_data.json', 'r+') as xrates_file:
+        records = json.load(xrates_file)
+        if isinstance(records, dict):
+            records = list(records)
+        rates_data = pd.DataFrame(records)[['timestamp', 'from', 'to', 'amount']]
+        # Rename columns
+        rates_data.rename(columns= {'amount': 'usd_to_currency_rate', 'from': 'currency_from'}, inplace= True)
+        # Transform column data
+        rates_data['currency_to'] = rates_data['to'].apply(lambda x: [item['quotecurrency'] for item in x])
+        rates_data['currency_to_usd_rate'] = rates_data['to'].apply(lambda x: [item['mid'] for item in x])
+        rates_data['timestamp'] = rates_data['timestamp'].apply(lambda x: datetime.strptime(x, '%Y-%m-%dT%H:%M:%SZ').date())
+        # Retrieve all currencies
+        currencies = [item.get('quotecurrency') for item in records[0].get('to')]
+        country_xchange_rates_df = []
+        for i in range(len(currencies)):
+            country_xchange_rates = rates_data[rates_data.columns]
+            country_xchange_rates['currency_to'] = country_xchange_rates['currency_to'].apply(lambda x: x[i])
+            country_xchange_rates['currency_to_usd_rate'] = country_xchange_rates['currency_to_usd_rate'].apply(lambda x: x[i])
+            country_xchange_rates = country_xchange_rates[['timestamp', 'currency_from', 'usd_to_currency_rate', 'currency_to_usd_rate', 'currency_to']]
+            country_xchange_rates_df.append(country_xchange_rates)
+            # Write specific country exchange rate data to an external file
+            country_xchange_rates.to_csv(f'transformed/USD_to_{currencies[i]}_rate_conversion.csv')
+        # Combine all the country exchange rates data
+        country_xchange_rates = pd.concat(country_xchange_rates_df)
+        # Write transformed data to an external csv file
+        country_xchange_rates.to_csv('transformed/combined_rates_conversion.csv', index=False)
+        print('transformed data written to csv file')
+
+
