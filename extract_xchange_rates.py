@@ -37,8 +37,8 @@ def get_exchange_rates(account_id, api_key):
                     # The check_last_updated function is first used to check if data for the current run date already exist.
                     # The update and write operation is skipped if this is tre
                     if check_last_updated(updated_records, response_data):
-                        updated_records.append(response_data)
-                        xrates_file.seek(0)
+                        updated_records.append(response_data) # update existing data with new data
+                        xrates_file.seek(0) # Reset to start of file to overite old data
                         xrates_file.write('[ \n')
                         for index, item in enumerate(updated_records): 
                             if index != (len(updated_records) -1): # checks if the current iteration is not the last iteration
