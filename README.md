@@ -57,5 +57,9 @@ To run the program from the command line, run below code:
 - cd Problem_2_Solution
 - python3 main.py 
 
+### Scheduling the Script:
+To schedule the script to pull exchange rate data by 1am and 11pm, execute the bash script (scheduler.sh) using the code below:
+- ./scheduler.sh
+
 ### Output:
 The output of the program can be found in a folder named 'transformed' within the project folder.
