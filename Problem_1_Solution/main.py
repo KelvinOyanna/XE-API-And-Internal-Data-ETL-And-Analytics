@@ -25,8 +25,10 @@ select * from loan_report;
 
 def main():
     'Main function for running all other functions/modules.'
-    #transform_load_to_db()
+    transform_load_to_db() # Run this function only one time
     print('All data successfully extracted, transformed and loaded to tables in a postgresql database')
+
+    # Create summarized table as report
     create_analytics_report(loan_report_query, conn_engine, output_file_name)
     print('Output report data successfully written to external file in directory: output. \n'
     'Please ignore the Warning as the .xls writter module used has been deprecated.')
