@@ -14,7 +14,7 @@ def get_exchange_rates(account_id, api_key):
     Return type: None
     '''
     #to_cur = ["NGN", "GHS", "KSH", "USH", "MAD", "CFA", "EGP"]
-    url = 'https://xecdapi.xe.com/v1/convert_from.json/?from=USD&to=NGN,GHS,KSH,USH,MAD,CFA,EGP&amount=1'
+    url = 'https://xecdapi.xe.com/v1/convert_from.json/?from=USD&to=NGN,GHS,KES,UGX,MAD,EGP,XAF&amount=1'
     
     try: # A try-except block to handle error authenticating or retrieving data from the API
         response = requests.get(url=url, auth= (account_id, api_key))
@@ -24,11 +24,11 @@ def get_exchange_rates(account_id, api_key):
                 with open('raw/exchange_rates_data.json', 'r+') as xrates_file:
                     records = json.load(xrates_file) # Read data from external JSON file
                     if isinstance(records, dict):
-                        updated_records = list(records)
+                        updated_records = [records]
                     else:
                         updated_records = records
                     # The check_last_updated function is first used to check if data for the current run date already exist.
-                    # The update and write operation is skipped if this is tre
+                    #The update and write operation is skipped if this is true
                     if check_last_updated(updated_records, response_data):
                         updated_records.append(response_data) # update existing data with new data
                         xrates_file.seek(0) # Reset to start of file to overite old data
@@ -66,7 +66,7 @@ def transform_data():
     with open('raw/exchange_rates_data.json', 'r+') as xrates_file:
         records = json.load(xrates_file)
         if isinstance(records, dict):
-            records = list(records)
+            records = [records]
         rates_data = pd.DataFrame(records)[['timestamp', 'from', 'to', 'amount']]
         # Rename columns
         rates_data.rename(columns= {'amount': 'usd_to_currency_rate', 'from': 'currency_from'}, inplace= True)
@@ -84,7 +84,7 @@ def transform_data():
             country_xchange_rates = country_xchange_rates[['timestamp', 'currency_from', 'usd_to_currency_rate', 'currency_to_usd_rate', 'currency_to']]
             country_xchange_rates_df.append(country_xchange_rates)
             # Write specific country exchange rate data to an external file
-            country_xchange_rates.to_csv(f'transformed/USD_to_{currencies[i]}_rate_conversion.csv')
+            country_xchange_rates.to_csv(f'transformed/USD_to_{currencies[i]}_rate_conversion.csv', index=False)
         # Combine all the country exchange rates data
         country_xchange_rates = pd.concat(country_xchange_rates_df)
         # Write transformed data to an external csv file
