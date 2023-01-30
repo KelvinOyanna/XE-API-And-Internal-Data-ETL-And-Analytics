@@ -1,0 +1,4 @@
+[ 
+{"terms": "http://www.xe.com/legal/dfs.php", "privacy": "http://www.xe.com/privacy.php", "from": "USD", "amount": 1.0, "timestamp": "2023-01-20T00:00:00Z", "to": [{"quotecurrency": "EGP", "mid": 29.8902592968}, {"quotecurrency": "GHS", "mid": 12.3313325119}, {"quotecurrency": "MAD", "mid": 10.1359787136}, {"quotecurrency": "NGN", "mid": 460.213002426}]},
+{"terms": "http://www.xe.com/legal/dfs.php", "privacy": "http://www.xe.com/privacy.php", "from": "USD", "amount": 1.0, "timestamp": "2023-01-21T00:00:00Z", "to": [{"quotecurrency": "EGP", "mid": 29.8902592968}, {"quotecurrency": "GHS", "mid": 12.3313325119}, {"quotecurrency": "MAD", "mid": 10.1359787136}, {"quotecurrency": "NGN", "mid": 460.213002426}]}
+]
