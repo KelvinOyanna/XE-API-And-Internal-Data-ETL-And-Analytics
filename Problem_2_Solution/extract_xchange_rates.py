@@ -44,7 +44,7 @@ def get_exchange_rates(account_id, api_key):
                         print('exchange rate data successfully updated')
                     # This block skips writing data to the external JSON file
                     else:
-                        pass
+                        print('Data for today already exists!')
             else:
                 with open('raw/exchange_rates_data.json', 'w') as xrates_file:
                     json.dump(response_data, xrates_file) # Write pulled data to an external JSON file
