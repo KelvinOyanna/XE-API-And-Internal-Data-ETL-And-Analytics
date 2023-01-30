@@ -2,6 +2,9 @@ import pandas as pd
 from util import get_database_conn
 from datetime import datetime
 from util import validate_date
+
+# Below is an alternative code to download the data directly from the provided links Google sheet links
+# Each url can be parsed in the pandas read_csv() method.
 # export_format = 'export?format=csv&gid='
 # borrower_table_url = f'https://docs.google.com/spreadsheets/d/1mfm4NUfv4wOJfMdjOIA5k99N79JFJDJeTBhzUfIYtzs/{export_format}0'
 # loan_table_url = f'https://docs.google.com/spreadsheets/d/16g0zXNzwT6zNtVYVQotaow_mXks2Ervn2LrgPOM6NzI/{export_format}760287896'
