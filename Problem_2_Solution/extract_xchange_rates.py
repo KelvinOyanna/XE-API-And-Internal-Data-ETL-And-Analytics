@@ -3,14 +3,7 @@ import requests
 import json
 import os
 from datetime import datetime
-from dotenv import dotenv_values
 from util import check_last_updated
-dotenv_values()
-
-# Get API credentials from environment variable file withing the project directory
-config = dict(dotenv_values('.env'))
-account_id = config.get('ACCOUNT_ID')
-api_key = config.get('API_KEY')
 
 def get_exchange_rates(account_id, api_key):
     '''
@@ -55,7 +48,7 @@ def get_exchange_rates(account_id, api_key):
             else:
                 with open('raw/exchange_rates_data.json', 'w') as xrates_file:
                     json.dump(response_data, xrates_file) # Write pulled data to an external JSON file
-                    print('exchange rate data successfully written to a file')
+                    print('exchange rate data successfully written to a JSON file')
         except FileExistsError:
             print('Directory does not exist')
     except requests.exceptions.RequestException as err:
@@ -96,6 +89,5 @@ def transform_data():
         country_xchange_rates = pd.concat(country_xchange_rates_df)
         # Write transformed data to an external csv file
         country_xchange_rates.to_csv('transformed/combined_rates_conversion.csv', index=False)
-        print('transformed data written to csv file')
 
 
