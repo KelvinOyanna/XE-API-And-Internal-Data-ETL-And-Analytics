@@ -12,11 +12,13 @@ current_date - expected_payment_date as current_days_past_due,
 max(expected_payment_date) over(partition by loan_id) as last_due_date,
 max(date_paid) over(partition by loan_id) as last_repayment_date,
 sum(expected_payment_amount) over(partition by borrower_id order by expected_payment_date rows 
-between unbounded preceding and current row) as amount_at_risk
+between unbounded preceding and current row) as amount_at_risk,
+date_paid - expected_payment_date as par_days
 from borrower
 join loan using(borrower_id)
 join payment_schedule using(loan_id)
 join loan_payment using(loan_id)
+where date_paid > expected_payment_date
 )
 select * from loan_report;
 '''
