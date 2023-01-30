@@ -22,7 +22,7 @@ select * from loan_report;
 '''
 
 def main():
-    'Main function for running all other functions.'
+    'Main function for running all other functions/modules.'
     #transform_load_to_db()
     print('All data successfully extracted, transformed and loaded to tables in a postgresql database')
     create_analytics_report(loan_report_query, conn_engine, output_file_name)
