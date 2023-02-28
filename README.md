@@ -1,4 +1,4 @@
-# Problem 1 Solution
+# Internal Data ETL & Analytics
 ### Description:
 The goal of this project is to generate a summarized table from the provided loan, borrower and payment data which, can be used for performance analytics by the company's management.
 
@@ -40,7 +40,7 @@ To run the programe from the command line, run below code:
 The output of the program can be found in a folder named 'output' within the project folder.
 
 
-# Problem 2 Solution
+# XE API ETL
 ### Description:
 The goal of this project is to create a data extraction pipeline that pulls currency exchange data from XE web API. This data is futher transformed in the required format.
 <p> On execution, the program pulls the latest currency exchange rate data from XE website, write the raw data into an external JSON file in the directory 'raw' within the project directory. The raw data is futher extrated and transformed into the required format. The final tranformed exchange rates data can be found in the directory named 'transformed'. Saving the pulled raw data helps for backfilling data when needed and also saves cost on sending requests to the API.
